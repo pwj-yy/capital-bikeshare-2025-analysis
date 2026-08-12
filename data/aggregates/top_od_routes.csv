@@ -1,0 +1,11 @@
+rank,ride_count,median_duration,avg_duration,weekday_share,route
+1,4300,3.96,4.6,82.19,Columbus Circle/Union Station → 8th & F St NE
+2,3503,3.76,4.14,82.96,8th & F St NE → Columbus Circle/Union Station
+3,3256,3.5,4.28,81.57,Columbus Circle/Union Station → 6th & H St NE
+4,3116,5.75,7.13,80.1,Eastern Market Metro → Lincoln Park/13th & East Capitol St NE
+5,3036,31.94,42.49,51.65,Gravelly Point → Gravelly Point
+6,2927,5.09,5.94,81.31,Lincoln Park/13th & East Capitol St NE → Eastern Market Metro
+7,2677,3.64,4.51,82.74,6th & H St NE → Columbus Circle/Union Station
+8,2491,7.05,8.19,72.5,4th & M St SW → 2nd & V St SW/James Creek Marina
+9,2396,33.94,47.36,61.14,Smithsonian-National Mall/Jefferson Dr & 12th St SW → Smithsonian-National Mall/Jefferson Dr & 12th St SW
+10,2262,32.02,41.55,59.42,Jefferson Dr & 14th St SW → Jefferson Dr & 14th St SW

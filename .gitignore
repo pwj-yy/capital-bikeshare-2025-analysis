@@ -1,0 +1,30 @@
+# Raw and row-level data are intentionally excluded.
+data/raw/
+data/processed/
+data/*.csv
+data/*.csv.gz
+data/*.zip
+*.parquet
+
+# Generated local outputs (the curated figures in figures/ are versioned).
+output/
+
+# Course deliverables and local working files.
+*.pptx
+*.docx
+*.pdf
+tmp/
+
+# Python / editor / OS files.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+.env
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

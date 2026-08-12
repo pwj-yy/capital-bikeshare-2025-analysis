@@ -1,0 +1,12 @@
+{
+  "project_year": 2025,
+  "source_files": 12,
+  "raw_rows": 6662647,
+  "cleaned_rows": 6657903,
+  "removed_rows": 4744,
+  "station_od_rows": 4541427,
+  "unique_stations": 1108,
+  "unique_od_pairs": 164786,
+  "duplicate_ride_ids": 0
+}
+
