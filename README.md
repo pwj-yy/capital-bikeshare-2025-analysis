@@ -51,7 +51,7 @@ Union Station 等交通枢纽和中心城区站点形成最高频的出发与到
 
 ![Top 50 OD 交互地图预览](figures/08_interactive_od_map.png)
 
-Top 50 OD 地图把起终点关系、线路频次和场景分类放在同一视图；可下载并在浏览器打开 [`docs/interactive_od_map.html`](docs/interactive_od_map.html) 进行探索（连线表示 OD 关系，不代表实际骑行轨迹）。
+Top 50 OD 地图把起终点关系、线路频次和场景分类放在同一视图；可下载并在浏览器打开 [`docs/interactive_od_map.html`](docs/interactive_od_map.html) 进行探索（连线表示 OD 关系，不代表实际骑行轨迹）。地图背景层保留已有作品按坐标构造的 1,118 个绘图节点；主站点分析的 1,108 是按“优先 ID、缺失回退名称”构造的分析键，两者统计单元不同，地图节点数不用于主分析结论。
 
 ## 运营含义
 
@@ -143,4 +143,3 @@ python analysis/run_all.py
 ## English summary
 
 This portfolio project analyzes 6.66 million Capital Bikeshare trips from 2025 using a chunked Python pipeline. It covers data quality, temporal demand, member-versus-casual behavior, station activity, directional station imbalance, and origin-destination flows. The findings support time-aware rebalancing, bike availability monitoring, and dock-capacity management. Raw and row-level trip data are intentionally excluded.
-
