@@ -1,141 +1,132 @@
-# Capital Bikeshare 2025 全年共享单车分析
+# Capital Bikeshare 用户需求、运营与定价策略分析
 
-项目使用 Capital Bikeshare 2025 年 1-12 月官方骑行数据，以 **Python 分块处理 666 万条记录**，分析需求在时间、用户、站点和 OD（Origin-Destination）流向上的差异，并把结果转化为高峰保障、补车和清桩的运营线索。
+本项目使用 Capital Bikeshare 公开骑行数据，连接三类业务问题：用户何时、为何使用共享单车；哪些站点与 OD 流向值得优先运营；2025 年价格调整后需求出现了怎样的政策相关变化，以及应如何通过随机实验进一步验证。
 
-| 招聘者快速了解 | 结果 |
+项目保留原有 2025 年用户、时段、站点与 OD 分析，并新增基于 2024–2025 年完整数据的 DID/DDD、标准化价格暴露和账户级 A/B Test 方案。原始及行级数据不进入仓库，仅提交代码、小型聚合表、文档和可视化。
+
+## Business Question
+
+1. **用户需求：** member 与 casual 的使用规模、时段和周末模式有何差异？
+2. **运营效率：** 哪些站点面临潜在缺车或满桩压力，高频 OD 反映了哪些通勤与休闲场景？
+3. **定价策略：** 2025-08-01 调价后，casual classic-bike 需求相对 member 如何变化，价格冲击的经济量级有多大？
+4. **实验验证：** 如何把观察性结果转化为可执行、可评估的账户级价格激励实验？
+
+## Data
+
+| 分析范围 | 规模 |
 | --- | ---: |
-| 原始记录 | 6,662,647 |
-| 清洗后记录 | 6,657,903（保留率 99.93%） |
-| 完整 station/OD 子集 | 4,541,427（占清洗后记录 68.21%） |
-| 分析站点键 | 1,108 |
-| 唯一 OD 组合 | 164,786 |
-| member 骑行占比 | 71.03% |
+| 2025 原始骑行记录 | 6,662,647 |
+| 2025 清洗后记录 | 6,657,903（保留率 99.93%） |
+| 2024–2025 定价分析有效记录 | **12,765,973** |
+| 2025 完整 station/OD 子集 | 4,541,427（占清洗后记录 68.21%） |
+| 站点分析键 / 唯一 OD 组合 | 1,108 / 164,786 |
 
-## 关键发现
+两个流水线均按 250,000 行分块读取月度文件，解析时间戳、计算骑行时长、跨文件去重，并删除非正时长、超过 24 小时及年份不符记录。定价分析另外要求完整自然年日期覆盖，避免把来源缺失日补成零需求。
 
-- **工作日存在明显通勤双峰。** 08:00 左右出现早高峰，17:00 达到更强的晚高峰；周末曲线更平缓，需求转向中午至下午。
-- **member 是系统主力，casual 更偏休闲。** member 贡献 4,729,273 次骑行，占 71.03%；member 周末日均强度 / 工作日为 0.856，casual 为 1.424。
-- **热门站点集中在交通枢纽和中心城区。** Columbus Circle / Union Station 全年出发与到达合计 114,448 次，位居第一。
-- **departures - arrivals 揭示方向性压力。** 出发偏多站点应优先监测缺车风险，到达偏多站点应关注满桩和车辆积压；年度差值是排查线索，不等同于实时库存短缺。
-- **高频 OD 同时包含通勤接驳与休闲环线。** Union Station 周边短距离线路频率高；Gravelly Point、National Mall 等同站还车线路时长更长，更可能对应休闲或观光场景。
+- 主数据处理口径：[docs/methodology.md](docs/methodology.md)
+- 字段说明：[docs/data_dictionary.md](docs/data_dictionary.md)
+- 定价分析口径：[docs/pricing_policy_methodology.md](docs/pricing_policy_methodology.md)
 
-## 代表性图表
+## User and Station Insights
+
+- **通勤与休闲时段清晰分化。** 工作日约 08:00 和 17:00 出现通勤双峰；周末需求向中午和下午移动。
+- **member 构成需求基本盘。** 2025 年 member 贡献 4,729,273 次骑行，占 71.03%；casual 的日间与周末特征更明显。
+- **高频节点集中在交通枢纽和中心城区。** Columbus Circle / Union Station 全年出发与到达合计 114,448 次，位居第一。
+- **站点方向差可转化为调度线索。** departures 高于 arrivals 的站点适合优先监测缺车风险，反向站点应关注满桩和车辆积压；年度差值不是实时库存证明。
+- **OD 同时覆盖通勤接驳和休闲环线。** Union Station 周边短距离线路频率高；Gravelly Point、National Mall 等同站还车线路时长更长。
 
 ![工作日与周末每小时骑行量](figures/01_hourly_weekday_weekend.png)
 
-工作日 08:00 和 17:00 的通勤峰值清晰，周末需求则向午后移动。
-
-![星期与小时热力图](figures/02_weekday_hour_heatmap.png)
-
-周一至周五的 17:00 高需求带最稳定，周末日内分布更平缓、更晚。
-
-![用户构成](figures/03_user_mix.png)
-
-member 贡献 71.03% 的全年骑行，是系统需求基本盘；casual 仍占接近三成。
-
 ![member 与 casual 每小时使用模式](figures/04_user_hour_profile.png)
-
-member 的早晚高峰更突出，casual 在日间和周末相对更活跃。
-
-![热门站点](figures/05_top_stations.png)
-
-Union Station 等交通枢纽和中心城区站点形成最高频的出发与到达节点。
 
 ![站点出发到达差值](figures/06_station_balance.png)
 
-正差值提示潜在缺车监测需求，负差值提示潜在满桩或清桩压力。
-
-![热门 OD 线路](figures/07_top_od_routes.png)
-
-高频短距离接驳与长时同站休闲环线并存，说明系统同时服务通勤和休闲场景。
-
 ![Top 50 OD 交互地图预览](figures/08_interactive_od_map.png)
 
-Top 50 OD 地图把起终点关系、线路频次和场景分类放在同一视图；可下载并在浏览器打开 [`docs/interactive_od_map.html`](docs/interactive_od_map.html) 进行探索（连线表示 OD 关系，不代表实际骑行轨迹）。地图背景层保留已有作品按坐标构造的 1,118 个绘图节点；主站点分析的 1,108 是按“优先 ID、缺失回退名称”构造的分析键，两者统计单元不同，地图节点数不用于主分析结论。
+完整交互地图见 [docs/interactive_od_map.html](docs/interactive_od_map.html)。全部 8 张精选图表保留在 [`figures/`](figures/)；原有用户、时段、站点和 OD 分析代码均继续保留。
 
-## 运营含义
+## Pricing Policy Analysis
 
-1. **分时保障：** 工作日优先保障 07:00-09:00、16:00-18:00 的核心通勤站点；周末把巡检和调度能力向中午至下午移动。
-2. **补车候选：** 将年度 departures 明显高于 arrivals 的高频站点纳入缺车监测清单，再结合小时规律与实时 GBFS 库存确定补车时段。
-3. **清桩候选：** 对 arrivals 明显高于 departures 的站点重点监测空桩数量和车辆积压，避免用户到站后无法还车。
-4. **差异化服务：** member 更需要稳定的通勤高峰可用性；casual 更需要景点、公园和日间热点周边的车辆可获得性及清晰引导。
+Capital Bikeshare 于 **2025-08-01** 调整价格。项目使用 2024–2025 年历史数据，以 member 作为相对参照，通过 DID/DDD 分析 casual classic-bike 的政策相关需求变化，并用 2024 同历日窗口控制通常的用户组季节性差异。2024-08-01 仅是历史同期日历切点，不代表 2024 存在价格政策。
 
-## 数据处理与分析流程
+DDD 的点估计方向为负（约 -17.0%），但区间包含零，统计证据不足，因此不能表述为已确认的因果效应。观察性结果只说明调价时点附近存在值得进一步实验验证的相对需求变化。
 
-`src/prepare_data.py` 保留了真实的大规模处理逻辑：
+### Standardized Price Exposure
 
-1. 自动发现 12 个按月 CSV/ZIP 文件，以 250,000 行为一个 chunk 流式读取；
-2. 检查 13 个原始字段的名称、数量与顺序是否一致；
-3. 解析 `started_at` / `ended_at`，计算 `duration_min`；
-4. 按 `started_at` 保留 2025 年记录，删除非正时长、超过 24 小时和重复 `ride_id` 后续记录；
-5. 构造月份、星期、小时、周末标记、站点键、OD 键和同站还车标记；
-6. 区分三个分析分母：完整清洗主表、任一端站点有效记录、起终点站同时完整的 station/OD 子集；
-7. 输出小型审计与聚合表。明细级输出默认关闭，避免意外生成或提交数百 MB 文件。
+对 **511,765 次**调价前 casual classic-bike 骑行固定其实际时长，并分别套用新旧 Single Ride 公示费率：
 
-详细口径见 [`docs/methodology.md`](docs/methodology.md)，字段说明见 [`docs/data_dictionary.md`](docs/data_dictionary.md)。
+| 标准化单次成本 | Mean |
+| --- | ---: |
+| Old-price equivalent | **$2.40** |
+| New-price equivalent | **$5.19** |
 
-## 仓库结构
+该指标是 **Single-Ride-equivalent standardized ride cost**：它衡量固定调价前行为下的挂牌费率暴露，不是实际订单价格、客单价、ARPU 或实际收入。公开 trip history 无法识别 casual 用户实际购买的票种。
 
-```text
-capital-bikeshare-2025-analysis/
-├─ README.md
-├─ requirements.txt
-├─ src/
-│  └─ prepare_data.py            # 12 个月数据清洗、审计与聚合
-├─ analysis/
-│  ├─ temporal_analysis.py       # 小时、工作日/周末、星期热力图
-│  ├─ user_analysis.py           # member/casual 构成与时段差异
-│  ├─ station_analysis.py        # 热门站点与出发-到达差值
-│  ├─ od_analysis.py             # 高频 OD 线路
-│  └─ run_all.py                 # 重绘全部静态图
-├─ data/
-│  ├─ README.md
-│  └─ aggregates/                # 可公开的小型派生表与质量审计
-├─ figures/                      # 8 张精选图表/地图预览
-├─ docs/
-│  ├─ data_dictionary.md
-│  ├─ methodology.md
-│  └─ interactive_od_map.html
-└─ .gitignore                    # 排除原始/清洗明细和课程杂项
-```
+作为弱化的描述性补充，调价后 casual classic-bike 平均骑行时长小幅下降，但中位数基本稳定；该结果只条件于骑行已经发生，不作为核心因果发现。
 
-## 如何复现
+- 完整结果与不确定性：[docs/pricing_policy_results.md](docs/pricing_policy_results.md)
+- 模型、趋势与时长口径：[docs/pricing_policy_methodology.md](docs/pricing_policy_methodology.md)
 
-### 1. 获取数据
+## A/B Test Proposal
 
-从 [Capital Bikeshare System Data](https://capitalbikeshare.com/system-data) 下载 2025 年 1-12 月 trip history 文件，将 12 个 ZIP 或解压后的 CSV 放入 `data/raw/`。文件名应类似：
+观察性结果进一步转化为一个账户级价格激励方案。**该 A/B Test 仅为实验设计，尚未实际在线执行。**
 
-```text
-data/raw/202501-capitalbikeshare-tripdata.zip
-...
-data/raw/202512-capitalbikeshare-tripdata.zip
-```
+| 设计项 | 方案 |
+| --- | --- |
+| Randomization unit | eligible casual account |
+| Treatment | targeted ride discount / credit |
+| Control | current pricing |
+| Primary metric | 7-day completed-ride conversion |
+| Guardrails | revenue/user、promotion cost、full-price cannibalization |
+| 显著性水平 / power | α = 0.05 / 80% |
+| Illustrative MDE | 2 percentage points |
+| Illustrative sample size | 约 **6,508 accounts / group** |
 
-### 2. 安装依赖并运行
+实验采用 ITT 原则；资格条件、观察窗口、主指标和样本量应在上线前冻结。完整方案见 [docs/ab_test_design.md](docs/ab_test_design.md)。
+
+## Key Artifacts
+
+| 类型 | 文件 |
+| --- | --- |
+| 分析脚本 | [analysis/pricing_policy_analysis.py](analysis/pricing_policy_analysis.py) |
+| 结果文档 | [docs/pricing_policy_results.md](docs/pricing_policy_results.md) |
+| 方法文档 | [docs/pricing_policy_methodology.md](docs/pricing_policy_methodology.md) |
+| A/B Test 方案 | [docs/ab_test_design.md](docs/ab_test_design.md) |
+| 日级分析表 | [data/aggregates/pricing_daily_segments.csv](data/aggregates/pricing_daily_segments.csv) |
+| DID/DDD 与趋势结果 | [data/aggregates/pricing_model_results.csv](data/aggregates/pricing_model_results.csv) |
+| 标准化价格暴露 | [data/aggregates/pricing_exposure_summary.csv](data/aggregates/pricing_exposure_summary.csv) |
+| 时长汇总 | [data/aggregates/duration_policy_summary.csv](data/aggregates/duration_policy_summary.csv) |
+| 时长分桶 | [data/aggregates/duration_bucket_share.csv](data/aggregates/duration_bucket_share.csv) |
+
+其余 2025 用户、时段、站点与 OD 聚合表见 [data/README.md](data/README.md)。
+
+## Reproduce
+
+### 1. 准备数据
+
+从 [Capital Bikeshare System Data](https://capitalbikeshare.com/system-data) 下载月度 trip history。将 2025 文件用于主运营分析；若要完整复现 DDD，同时准备 2024 和 2025 两个完整自然年的月度文件。可放入被忽略的 `data/raw/`，也可通过 `--input-dir` 指定外部目录。
+
+### 2. 安装并运行
 
 ```bash
 python -m pip install -r requirements.txt
 python src/prepare_data.py
 python analysis/run_all.py
+python analysis/pricing_policy_analysis.py --input-dir <2024-2025-tripdata-directory> --strict-ddd
 ```
 
-如确需在本地生成清洗后明细，可显式增加 `--write-row-level`；这些文件会写入被 `.gitignore` 排除的 `data/processed/`。
+`src/prepare_data.py` 生成 2025 运营分析聚合表；`pricing_policy_analysis.py` 生成定价日表、模型结果、标准化价格暴露、时长汇总和覆盖审计。原始及行级数据由 `.gitignore` 排除。
 
-## 数据来源与公开说明
+## Data Source and Limitations
 
 - 数据来源：[Capital Bikeshare System Data](https://capitalbikeshare.com/system-data)
 - 数据许可：[Capital Bikeshare Data License Agreement](https://capitalbikeshare.com/data-license-agreement)
-- 本仓库不包含原始或清洗后的明细骑行数据，仅包含分析代码、非商业分析所需的小型派生聚合表和可视化。
-- Capital Bikeshare 官方说明原始 trip history 已移除工作人员/测试站骑行和疑似误操作的 60 秒以下骑行；本项目没有再次机械删除全部 1 分钟以下记录，而是将其纳入质量统计。
+- station/OD 分析仅覆盖起终点站信息同时完整的 68.21% 清洗后记录。
+- 天气、节假日、活动、车辆供给和同期运营变化仍可能影响观察性 DID/DDD；DDD 不自动构成因果证明。
+- 公开数据不含账户、票种、订单金额、优惠、税费或实际调度信息。
+- OD 连线表示起终点关系，不代表真实骑行轨迹；年度站点方向差不能直接证明某一时刻缺车或满桩。
 - 本项目与 Capital Bikeshare、Lyft 或其成员辖区无隶属、赞助或背书关系，未使用官方 Logo。
 
-## 局限性
+## English Summary
 
-- station/OD 分析只覆盖起终点站信息同时完整的 68.21% 清洗后记录，且完整率存在月份差异。
-- 未纳入天气、节假日、大型活动、实时 GBFS 库存、站点容量和实际调度记录。
-- OD 连线只表示起点与终点关系，不是实际骑行路径；通勤/休闲属于基于时间、时长和地点的解释性判断。
-- 年度 departures - arrivals 适合筛选运营关注对象，不能直接证明某一时刻缺车或满桩。
-
-## English summary
-
-This portfolio project analyzes 6.66 million Capital Bikeshare trips from 2025 using a chunked Python pipeline. It covers data quality, temporal demand, member-versus-casual behavior, station activity, directional station imbalance, and origin-destination flows. The findings support time-aware rebalancing, bike availability monitoring, and dock-capacity management. Raw and row-level trip data are intentionally excluded.
+This project combines 2025 Capital Bikeshare user-demand and operations analysis with a 2024–2025 pricing-policy study. It preserves the original temporal, user, station, and OD foundations, then adds observational DID/DDD estimates, a standardized Single Ride rate-card exposure, descriptive ride-duration summaries, and an account-level A/B test proposal. The negative DDD point estimate is statistically uncertain and is not presented as confirmed causality. Raw and row-level trip data are intentionally excluded.

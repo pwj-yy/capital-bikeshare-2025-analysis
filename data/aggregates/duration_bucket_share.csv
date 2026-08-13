@@ -1,0 +1,21 @@
+year,period,period_label,duration_bucket,bucket_order,ride_count,share
+2024,pre,2024 Jan 1-Jul 31 historical early period,0-10 min,1,165925,0.2930770752524075
+2024,pre,2024 Jan 1-Jul 31 historical early period,10-20 min,2,170298,0.3008012039254753
+2024,pre,2024 Jan 1-Jul 31 historical early period,20-30 min,3,82064,0.14495149678176025
+2024,pre,2024 Jan 1-Jul 31 historical early period,30-45 min,4,63971,0.11299342221468592
+2024,pre,2024 Jan 1-Jul 31 historical early period,45+ min,5,83890,0.14817680182567103
+2024,post,2024 Aug 1-Dec 31 historical later period,0-10 min,1,111365,0.2953610557834965
+2024,post,2024 Aug 1-Dec 31 historical later period,10-20 min,2,113822,0.30187748476980325
+2024,post,2024 Aug 1-Dec 31 historical later period,20-30 min,3,55515,0.14723628619243756
+2024,post,2024 Aug 1-Dec 31 historical later period,30-45 min,4,43925,0.116497412789387
+2024,post,2024 Aug 1-Dec 31 historical later period,45+ min,5,52420,0.13902776046487572
+2025,pre,2025 Jan 1-Jul 31 pre-policy,0-10 min,1,158019,0.30877258116518325
+2025,pre,2025 Jan 1-Jul 31 pre-policy,10-20 min,2,152922,0.2988129317167059
+2025,pre,2025 Jan 1-Jul 31 pre-policy,20-30 min,3,72985,0.1426142858538587
+2025,pre,2025 Jan 1-Jul 31 pre-policy,30-45 min,4,56421,0.11024786767363927
+2025,pre,2025 Jan 1-Jul 31 pre-policy,45+ min,5,71418,0.1395523335906129
+2025,post,2025 Aug 1-Dec 31 post-policy,0-10 min,1,80707,0.31139122315592904
+2025,post,2025 Aug 1-Dec 31 post-policy,10-20 min,2,76673,0.29582687069318087
+2025,post,2025 Aug 1-Dec 31 post-policy,20-30 min,3,37579,0.14499077868061824
+2025,post,2025 Aug 1-Dec 31 post-policy,30-45 min,4,31632,0.12204551241984397
+2025,post,2025 Aug 1-Dec 31 post-policy,45+ min,5,32591,0.1257456150504279

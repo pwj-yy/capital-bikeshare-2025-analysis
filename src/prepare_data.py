@@ -843,15 +843,38 @@ def write_outputs(summary: dict[str, object], output_dir: Path) -> None:
 
 
 def publish_outputs(staging_dir: Path, output_dir: Path) -> None:
-    """Replace generated tables only after the complete pipeline succeeds."""
+    """Replace this pipeline's tables after the complete pipeline succeeds.
 
+    Only same-named targets are replaced so independently generated aggregate
+    products, such as the pricing-policy tables, are preserved.
+    """
+
+    owned_outputs = {
+        "cleaning_removed_records_summary.csv",
+        "duration_by_user_type.csv",
+        "hour_by_daytype.csv",
+        "monthly_quality_summary.csv",
+        "monthly_rides.csv",
+        "pipeline_metrics.json",
+        "schema_check.csv",
+        "station_balance.csv",
+        "station_usage.csv",
+        "top_od_routes.csv",
+        "user_daytype_daily.csv",
+        "user_hour_share.csv",
+        "user_type_summary.csv",
+        "weekday_hour.csv",
+    }
     output_dir.mkdir(parents=True, exist_ok=True)
-    for old in output_dir.glob("*.csv"):
-        old.unlink()
-    for old in output_dir.glob("*.json"):
-        old.unlink()
+    for name in owned_outputs:
+        old = output_dir / name
+        if old.exists() and not (staging_dir / name).exists():
+            old.unlink()
     for path in staging_dir.iterdir():
-        shutil.move(str(path), output_dir / path.name)
+        target = output_dir / path.name
+        if target.exists():
+            target.unlink()
+        shutil.move(str(path), target)
 
 
 def main() -> None:

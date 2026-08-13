@@ -1,0 +1,73 @@
+{
+  "input_dirs": [
+    "../data"
+  ],
+  "years": [
+    {
+      "year": 2024,
+      "source_files": 12,
+      "raw_rows": 6114323,
+      "usable_rows": 6108070,
+      "removal_counts": {
+        "duplicate_ride_id_after_first": 141,
+        "unparseable_started_at": 0,
+        "unparseable_ended_at": 0,
+        "started_at_outside_year": 0,
+        "duration_non_positive": 1101,
+        "duration_over_24h": 5011,
+        "unexpected_segment": 0
+      },
+      "complete_calendar": true,
+      "missing_date_count": 0,
+      "first_available_date": "2024-01-01",
+      "last_available_date": "2024-12-31",
+      "available_date_count": 366
+    },
+    {
+      "year": 2025,
+      "source_files": 12,
+      "raw_rows": 6662647,
+      "usable_rows": 6657903,
+      "removal_counts": {
+        "duplicate_ride_id_after_first": 0,
+        "unparseable_started_at": 0,
+        "unparseable_ended_at": 0,
+        "started_at_outside_year": 36,
+        "duration_non_positive": 35,
+        "duration_over_24h": 4673,
+        "unexpected_segment": 0
+      },
+      "complete_calendar": true,
+      "missing_date_count": 0,
+      "first_available_date": "2025-01-01",
+      "last_available_date": "2025-12-31",
+      "available_date_count": 365
+    }
+  ],
+  "calendar_window_cutoff": "August 1 within each year",
+  "policy_year": 2025,
+  "historical_control_year": 2024,
+  "cutoff_interpretation": "August 1 is the 2025 policy cutoff; in 2024 it is only the historical same-calendar-period cutoff.",
+  "standardized_price_exposure": {
+    "sample": "2025 pre-policy casual classic-bike rides",
+    "unlock_fee_usd": 1.0,
+    "old_classic_rate_per_minute_usd": 0.05,
+    "new_classic_rate_per_minute_usd": 0.15,
+    "billing_minutes": "ceil(duration_min)",
+    "interpretation": "Single-Ride-equivalent standardized ride cost; scenario calculation, not an observed transaction price or revenue.",
+    "taxes_included": false
+  },
+  "duration_response": {
+    "sample": "casual classic-bike rides conditional on riding",
+    "buckets": [
+      "0-10 min",
+      "10-20 min",
+      "20-30 min",
+      "30-45 min",
+      "45+ min"
+    ],
+    "interval_rule": "left-open, right-closed; final bucket unbounded",
+    "inference": "descriptive only"
+  },
+  "cleaning": "deduplicate ride_id after first; parsed timestamps; 0 < duration_min <= 1440; started_at year"
+}
